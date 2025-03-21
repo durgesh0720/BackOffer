@@ -10,11 +10,15 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = True        # For Testing Purposes
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
+ALLOWED_HOSTS = ['*']
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS').split(',')
+
+CORS_ALLOWED_ORIGINS = [
+    "https://backoffer.onrender.com",  
+    "http://localhost:5173"      
+]
 trusted_origins = ['http://localhost:5173']
 
 # Application definition
