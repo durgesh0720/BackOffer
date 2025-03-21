@@ -1,7 +1,7 @@
 attrs==23.2.0
 autocommand==2.2.2
 Babel==2.14.0
-bcc==0.30.0
+bcc
 blinker==1.8.2
 Brlapi==0.8.5
 certifi==2024.6.2
