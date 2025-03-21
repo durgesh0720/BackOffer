@@ -19,7 +19,7 @@ function App() {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/data/', { params: filters });
+      const response = await axios.get('https://backoffer.onrender.com/data/', { params: filters });
       setData(response.data.data);
     } catch (error) {
       console.error('Error fetching data:', error);

@@ -15,7 +15,7 @@ function Dashboard() {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/data/', {
+      const response = await axios.get('https://backoffer.onrender.com/data/', {
         params: { end_year: endYear, sector, topic }
       });
       setData(response.data.data);
