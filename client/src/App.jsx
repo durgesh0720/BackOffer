@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import debounce from 'lodash/debounce'; // Install lodash for debouncing
 import BarChart from './components/BarChart';
 import LineChart from './components/LineChart';
 import PieChart from './components/PieChart';
@@ -14,21 +15,29 @@ function App() {
   });
   const [selectedEntry, setSelectedEntry] = useState(null);
 
-  useEffect(() => {
-    fetchData();
-  }, [filters]);
+  // Debounced fetchData function
+  const debouncedFetchData = useCallback(
+    debounce(async (filterValues) => {
+      try {
+        setIsLoading(true);
+        const response = await axios.get('https://backoffer.onrender.com/data/', {
+          params: filterValues,
+        });
+        setData(response.data.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }, 500), // 500ms debounce delay
+    []
+  );
 
-  const fetchData = async () => {
-    try {
-      setIsLoading(true);
-      const response = await axios.get('https://backoffer.onrender.com/data/', { params: filters });
-      setData(response.data.data);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  useEffect(() => {
+    debouncedFetchData(filters);
+    // Cleanup debounce on unmount to prevent memory leaks
+    return () => debouncedFetchData.cancel();
+  }, [filters, debouncedFetchData]);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -50,12 +59,14 @@ function App() {
   // Skeleton Component for Filters
   const FilterSkeleton = () => (
     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 animate-pulse">
-      {Array(11).fill().map((_, index) => (
-        <div key={index}>
-          <div className="h-4 bg-gray-300 rounded w-1/3 mb-2"></div>
-          <div className="h-10 bg-gray-200 rounded w-full"></div>
-        </div>
-      ))}
+      {Array(11)
+        .fill()
+        .map((_, index) => (
+          <div key={index}>
+            <div className="h-4 bg-gray-300 rounded w-1/3 mb-2"></div>
+            <div className="h-10 bg-gray-200 rounded w-full"></div>
+          </div>
+        ))}
     </div>
   );
 
@@ -109,7 +120,7 @@ function App() {
         )}
         <button
           onClick={handleResetFilters}
-          className="mt-6 bg-gradient-to-r from-red-500 to-red-600 text-white p-3 rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-300"
+          className="mt-6 bg-gradient-to-r from-red-500 to-red-600 text-white p-3 rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-300 disabled:opacity-50"
           disabled={isLoading}
         >
           Reset Filters
@@ -120,9 +131,11 @@ function App() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {isLoading ? (
           <>
-            {Array(6).fill().map((_, index) => (
-              <VisualizationSkeleton key={index} />
-            ))}
+            {Array(6)
+              .fill()
+              .map((_, index) => (
+                <VisualizationSkeleton key={index} />
+              ))}
           </>
         ) : (
           <>
@@ -161,7 +174,12 @@ function App() {
                   <p><strong>Topic:</strong> {selectedEntry.topic || 'N/A'}</p>
                   <p><strong>Sector:</strong> {selectedEntry.sector || 'N/A'}</p>
                   <p><strong>PESTLE:</strong> {selectedEntry.pestle || 'N/A'}</p>
-                  <p><strong>Source:</strong> <a href={selectedEntry.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{selectedEntry.source}</a></p>
+                  <p>
+                    <strong>Source:</strong>{' '}
+                    <a href={selectedEntry.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                      {selectedEntry.source}
+                    </a>
+                  </p>
                 </div>
               ) : (
                 <p className="text-gray-500">Click a bar to view details</p>
