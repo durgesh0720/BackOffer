@@ -17,7 +17,10 @@ CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
     "https://backoffer.onrender.com",  
-    "http://localhost:5173"      
+    "http://localhost:5173",
+    "https://back-offer-vuepangyp-durgesh0720s-projects.vercel.app",
+    "https://back-offer.vercel.app",
+    "https://back-offer.vercel.app",  
 ]
 trusted_origins = ['http://localhost:5173']
 
